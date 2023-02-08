@@ -23,6 +23,18 @@ fun Application.configureRouting() {
                     call.respondText("Incorrect input")
             }
         }
+
+        get("/j_to_g") {
+            val input = call.parameters[JULIAN]
+            if (input != null) {
+                if (input.matches(Regex("\\d{2}.\\d{2}.\\d{4}"))) {
+                    val dates = input.split(".")
+                    val result = getGrigorianDate(dates[0].toInt(), dates[1].toInt(), dates[2].toInt(), ClassDateEnum.JULIAN)
+                    call.respondText("input = $result")
+                } else
+                    call.respondText("Incorrect input")
+            }
+        }
     }
 }
 
@@ -52,6 +64,24 @@ fun getJulianDate (day : Int, month : Int, year : Int, from : ClassDateEnum) : S
                 val newDay = DAYS[newMonth - 1] + takeDays + if (isBissextile(newYear) && newMonth == 2) 1 else 0
 
                 String.format("%02d.%02d.%d", newDay, newMonth, newYear)
+            }
+        }
+        else -> return String.format("%02d.%02d.%d", day, month, year)
+    }
+}
+
+fun getGrigorianDate (day : Int, month : Int, year : Int, from : ClassDateEnum) : String {
+    if (!checkCorrectDay(day, month))
+        return "Incorrect date"
+    when (from) {
+        ClassDateEnum.JULIAN -> {
+            return if (day + 13 <= DAYS[month])
+                String.format("%02d.%02d.%d", day + 13, month, year)
+            else {
+                val giveDays = 13 - (DAYS[month] - day)
+                val newMonth = if (month == 12) 1 else month - 1
+                val newYear = year + if (newMonth == 1) 1 else 0
+                String.format("%02d.%02d.%d", giveDays, newMonth, newYear)
             }
         }
         else -> return String.format("%02d.%02d.%d", day, month, year)
