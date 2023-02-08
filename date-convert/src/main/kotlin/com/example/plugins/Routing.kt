@@ -47,6 +47,18 @@ fun Application.configureRouting() {
                     call.respondText("Incorrect input")
             }
         }
+
+        get("/c_to_g") {
+            val input = call.parameters[CHINESE]
+            if (input != null) {
+                if (input.matches(Regex("\\d{2}.\\d{2}.\\d{4}"))) {
+                    val dates = input.split(".")
+                    val result = getGrigorianDate(dates[0].toInt(), dates[1].toInt(), dates[2].toInt(), ClassDateEnum.CHINESE)
+                    call.respondText("input = $result")
+                } else
+                    call.respondText("Incorrect input")
+            }
+        }
     }
 }
 
@@ -60,6 +72,22 @@ fun checkCorrectDay(day: Int, month: Int): Boolean {
 
 fun isBissextile(year : Int) : Boolean {
     return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
+}
+
+fun getDateFromChinese(day : Int, month : Int, year : Int, to : ClassDateEnum) : String {
+    var daysLeft = 34 - (DAYS[month - 1] - day)
+    var newMonth = if (month == 12) 1 else month + 1
+    var newYear = year + if (newMonth == 1) 1 else 0
+    val newDay : Int
+    if (DAYS[month - 1] > daysLeft)
+        newDay = daysLeft
+    else {
+        daysLeft -= DAYS[newMonth - 1]
+        newMonth = if (newMonth == 12) 1 else newMonth + 1
+        newYear = year + if (newMonth == 1) 1 else 0
+        newDay = daysLeft
+    }
+    return String.format("%02.2f.%02d.%d", newDay + 0.03, newMonth, newYear)
 }
 
 fun getJulianDate (day : Int, month : Int, year : Int, from : ClassDateEnum) : String {
@@ -95,6 +123,9 @@ fun getGrigorianDate (day : Int, month : Int, year : Int, from : ClassDateEnum) 
                 val newYear = year + if (newMonth == 1) 1 else 0
                 String.format("%02d.%02d.%d", giveDays, newMonth, newYear)
             }
+        }
+        ClassDateEnum.CHINESE -> {
+            return getDateFromChinese(day, month, year, ClassDateEnum.GRIGORIAN)
         }
         else -> return String.format("%02d.%02d.%d", day, month, year)
     }
