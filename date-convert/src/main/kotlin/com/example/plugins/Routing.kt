@@ -35,6 +35,18 @@ fun Application.configureRouting() {
                     call.respondText("Incorrect input")
             }
         }
+
+        get("/g_to_c") {
+            val input = call.parameters[GRIGORIAN]
+            if (input != null) {
+                if (input.matches(Regex("\\d{2}.\\d{2}.\\d{4}"))) {
+                    val dates = input.split(".")
+                    val result = getChineseDate(dates[0].toInt(), dates[1].toInt(), dates[2].toInt(), ClassDateEnum.GRIGORIAN)
+                    call.respondText("input = $result")
+                } else
+                    call.respondText("Incorrect input")
+            }
+        }
     }
 }
 
@@ -86,4 +98,24 @@ fun getGrigorianDate (day : Int, month : Int, year : Int, from : ClassDateEnum) 
         }
         else -> return String.format("%02d.%02d.%d", day, month, year)
     }
+}
+
+fun getChineseDate (day : Int, month : Int, year : Int, from : ClassDateEnum) : String {
+    if (from == ClassDateEnum.GRIGORIAN) {
+        var daysLeft = 34
+        daysLeft -= day
+        var newMonth = if (month == 1) 12 else month - 1
+        var newYear = year - if (newMonth == 12) 1 else 0
+        val newDay: Int
+        if (DAYS[newMonth - 1] > daysLeft)
+            newDay = DAYS[newMonth - 1] - daysLeft
+        else {
+            daysLeft -= DAYS[newMonth - 1]
+            newMonth = if (newMonth == 1) 12 else newMonth - 1
+            newYear = year - if (newMonth == 12) 1 else 0
+            newDay = DAYS[newMonth - 1] - daysLeft
+        }
+        return String.format("%02.2f.%02d.%d", newDay + 0.97, newMonth, newYear)
+    } else
+        return String.format("%02d.%02d.%d", day, month, year)
 }
