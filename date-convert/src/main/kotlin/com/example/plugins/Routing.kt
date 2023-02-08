@@ -72,6 +72,18 @@ fun Application.configureRouting() {
                     call.respondText("Incorrect input")
             }
         }
+
+        get("/c_to_j") {
+            val input = call.parameters[CHINESE]
+            if (input != null) {
+                if (input.matches(Regex("\\d{2}.\\d{2}.\\d{4}"))) {
+                    val dates = input.split(".")
+                    val result = getJulianDate(dates[0].toInt(), dates[1].toInt(), dates[2].toInt(), ClassDateEnum.CHINESE)
+                    call.respondText("input = $result")
+                } else
+                    call.respondText("Incorrect input")
+            }
+        }
     }
 }
 
@@ -118,6 +130,9 @@ fun getJulianDate (day : Int, month : Int, year : Int, from : ClassDateEnum) : S
 
                 String.format("%02d.%02d.%d", newDay, newMonth, newYear)
             }
+        }
+        ClassDateEnum.CHINESE -> {
+            return getDateFromChinese(day, month, year, ClassDateEnum.JULIAN)
         }
         else -> return String.format("%02d.%02d.%d", day, month, year)
     }
