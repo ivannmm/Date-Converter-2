@@ -1,5 +1,6 @@
 # Date-Converter
-
+![Build Status](https://github.com/ivannmm/Date-Converter-2/actions/workflows/main.yml/badge.svg?branch=dev) (dev)
+![Build Status](https://github.com/ivannmm/Date-Converter-2/workflows/main.yml/badge.svg?branch=main) (main)
 ## How to use
 
 Преобразование григорианского календаря в юлианский
